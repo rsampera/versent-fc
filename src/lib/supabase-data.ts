@@ -249,12 +249,14 @@ export async function getLineupVariants() {
 }
 
 export async function getPublicAppData() {
-  const [players, lineupVariants] = await Promise.all([
+  const [players, lineupVariants, appSettingsRows] = await Promise.all([
     getPlayers(),
     getLineupVariants(),
+    supabaseRequest<AppSettingsRow[]>("/app_settings?select=manager_token&id=eq.1"),
   ]);
 
   return {
+    managerToken: appSettingsRows[0]?.manager_token ?? null,
     players,
     lineupVariants,
   };

@@ -3,7 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 
 import { PitchBoard } from "@/components/pitch-board";
-import { LineupVariant, Player } from "@/lib/site-data";
+import { LineupVariant, Player, getPitchJerseySrc } from "@/lib/site-data";
 
 type ManagerBoardProps = {
   managerToken: string;
@@ -22,6 +22,7 @@ export function ManagerBoard({
     variants[0]?.slots[0]?.playerId ?? players[0]?.id ?? "",
   );
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [isPending, startTransition] = useTransition();
   const playersById = useMemo(
     () => new Map(players.map((player) => [player.id, player])),
@@ -34,8 +35,8 @@ export function ManagerBoard({
   const starters = new Set(activeVariant.slots.map((slot) => slot.playerId));
 
   return (
-    <div className="grid gap-8 xl:grid-cols-[0.95fr_1.05fr]">
-      <section className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.28)]">
+    <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+      <section className="rounded-[1.75rem] bg-[#09110c]/85 p-4 shadow-[0_24px_80px_rgba(0,0,0,0.28)]">
         <div className="mb-6">
           <p className="text-sm font-semibold uppercase tracking-[0.28em] text-[#a6ff47]">
             Manager Token
@@ -45,8 +46,7 @@ export function ManagerBoard({
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-white/68">
             This board controls the real 8-player setup, separate from each
-            player&apos;s self-declared preferred zone. Lineup changes save back to
-            Supabase through the manager token route.
+            player&apos;s self-declared preferred zone.
           </p>
         </div>
 
@@ -73,7 +73,7 @@ export function ManagerBoard({
             </div>
           </div>
 
-          <div className="rounded-[1.6rem] border border-white/8 bg-black/20 p-5">
+          <div className="rounded-[1.6rem] bg-black/20 p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.26em] text-white/55">
               Bench / Available squad
             </p>
@@ -108,7 +108,7 @@ export function ManagerBoard({
             </div>
           </div>
 
-          <div className="rounded-[1.6rem] border border-white/8 bg-black/20 p-5">
+          <div className="rounded-[1.6rem] bg-black/20 p-5">
             <p className="text-xs font-semibold uppercase tracking-[0.26em] text-white/55">
               Selected player
             </p>
@@ -118,12 +118,25 @@ export function ManagerBoard({
                   {selectedPlayer.name}
                 </p>
                 <p className="mt-2 text-sm text-white/62">
-                  Tap the pitch to preview where this player would sit in the active variant.
+                  {isEditMode
+                    ? "Edit mode is on. Click the pitch to place this player in the active variant."
+                    : "Edit mode is off. Turn it on to reposition players on the pitch."}
                 </p>
               </div>
             ) : null}
 
             <div className="mt-5 flex flex-wrap items-center gap-3">
+              <button
+                className={`rounded-full border px-5 py-3 text-sm font-black uppercase tracking-[0.2em] transition ${
+                  isEditMode
+                    ? "border-[#a6ff47]/45 bg-[#a6ff47] text-[#081108]"
+                    : "border-white/12 bg-black/20 text-white/72 hover:border-white/25"
+                }`}
+                onClick={() => setIsEditMode((current) => !current)}
+                type="button"
+              >
+                {isEditMode ? "Edit mode on" : "Edit mode off"}
+              </button>
               <button
                 className="rounded-full border border-[#a6ff47]/45 bg-[#a6ff47] px-6 py-3 text-sm font-black uppercase tracking-[0.2em] text-[#081108] transition hover:bg-[#baff6c] disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={isPending}
@@ -167,7 +180,7 @@ export function ManagerBoard({
       </section>
 
       <PitchBoard
-        interactive={Boolean(selectedPlayer)}
+        interactive={Boolean(selectedPlayer) && isEditMode}
         markers={activeVariant.slots.map((slot) => {
           const player = playersById.get(slot.playerId);
 
@@ -175,13 +188,14 @@ export function ManagerBoard({
             id: slot.playerId,
             label: player?.name.split(" ")[0] ?? "Player",
             shirtNumber: player?.shirtNumber,
+            jerseySrc: player ? getPitchJerseySrc(player) : "/jersey.png",
             x: slot.x,
             y: slot.y,
             accent: selectedPlayerId === slot.playerId ? ("white" as const) : ("lime" as const),
           };
         })}
         onPitchClick={(x, y) => {
-          if (!selectedPlayerId) {
+          if (!selectedPlayerId || !isEditMode) {
             return;
           }
 
@@ -220,6 +234,7 @@ export function ManagerBoard({
               };
             }),
           );
+          setSaveMessage(`Moved ${selectedPlayer?.name ?? "player"} in ${activeVariant.name}. Save to persist.`);
         }}
         subtitle={`${activeVariant.label} · ${activeVariant.description}`}
         title="Starting Eight Layout"

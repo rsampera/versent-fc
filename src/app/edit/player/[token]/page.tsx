@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { PlayerEditor } from "@/components/player-editor";
-import { getPlayerByToken } from "@/lib/supabase-data";
+import { getPlayerByToken, getPublicAppData } from "@/lib/supabase-data";
 
 type PlayerEditPageProps = {
   params: Promise<{
@@ -12,7 +12,10 @@ type PlayerEditPageProps = {
 
 export default async function PlayerEditPage({ params }: PlayerEditPageProps) {
   const { token } = await params;
-  const player = await getPlayerByToken(token);
+  const [player, publicData] = await Promise.all([
+    getPlayerByToken(token),
+    getPublicAppData(),
+  ]);
 
   if (!player) {
     notFound();
@@ -28,7 +31,11 @@ export default async function PlayerEditPage({ params }: PlayerEditPageProps) {
           View player profile
         </Link>
       </div>
-      <PlayerEditor player={player} />
+      <PlayerEditor
+        lineupVariants={publicData.lineupVariants}
+        player={player}
+        players={publicData.players}
+      />
     </main>
   );
 }

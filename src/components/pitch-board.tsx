@@ -1,11 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import { ReactNode } from "react";
 
 export type PitchMarker = {
   id: string;
   label: string;
   shirtNumber?: number;
+  jerseySrc?: string;
   x: number;
   y: number;
   accent?: "lime" | "white";
@@ -23,9 +25,11 @@ type PitchBoardProps = {
   title?: string;
   subtitle?: string;
   markers?: PitchMarker[];
+  selectedMarkerId?: string;
   coverage?: CoverageOverlay;
   interactive?: boolean;
   onPitchClick?: (x: number, y: number) => void;
+  onMarkerClick?: (markerId: string) => void;
   footer?: ReactNode;
 };
 
@@ -37,30 +41,32 @@ export function PitchBoard({
   title,
   subtitle,
   markers = [],
+  selectedMarkerId,
   coverage,
   interactive = false,
   onPitchClick,
+  onMarkerClick,
   footer,
 }: PitchBoardProps) {
   return (
-    <section className="rounded-[2rem] border border-white/10 bg-[#09110c]/85 p-4 text-white shadow-[0_24px_80px_rgba(0,0,0,0.3)]">
+    <section className="rounded-[1.75rem] bg-[#09110c]/85 p-3 text-white shadow-[0_24px_80px_rgba(0,0,0,0.3)] sm:p-4">
       {(title || subtitle) && (
-        <header className="mb-4 flex items-end justify-between gap-4">
+        <header className="mb-3 flex items-end justify-between gap-4">
           <div>
             {title ? (
-              <h3 className="text-lg font-black uppercase tracking-[0.12em]">
+              <h3 className="text-base font-black uppercase tracking-[0.12em] sm:text-lg">
                 {title}
               </h3>
             ) : null}
             {subtitle ? (
-              <p className="mt-1 text-sm text-white/65">{subtitle}</p>
+              <p className="mt-1 text-xs text-white/65 sm:text-sm">{subtitle}</p>
             ) : null}
           </div>
         </header>
       )}
 
       <div
-        className={`relative aspect-[10/14] overflow-hidden rounded-[1.6rem] border border-[#baff6c]/20 bg-[radial-gradient(circle_at_top,_rgba(166,255,71,0.22),_rgba(15,62,24,0.94)_35%,_rgba(4,20,10,0.98)_100%)] ${
+        className={`relative aspect-[16/19] max-h-[48rem] overflow-hidden rounded-[1.35rem] border border-[#baff6c]/20 bg-[radial-gradient(circle_at_top,_rgba(166,255,71,0.22),_rgba(15,62,24,0.94)_35%,_rgba(4,20,10,0.98)_100%)] ${
           interactive ? "cursor-crosshair" : ""
         }`}
         onClick={(event) => {
@@ -103,33 +109,44 @@ export function PitchBoard({
         ) : null}
 
         {markers.map((marker) => (
-          <div
+          <button
             key={marker.id}
-            className="absolute -translate-x-1/2 -translate-y-1/2 text-center"
+            className="absolute -translate-x-1/2 -translate-y-[42%] text-center"
+            onClick={(event) => {
+              event.stopPropagation();
+              onMarkerClick?.(marker.id);
+            }}
+            type="button"
             style={{ left: `${marker.x}%`, top: `${marker.y}%` }}
           >
-            <div className="mx-auto flex h-14 w-12 items-center justify-center border border-white/25 bg-[#050705] text-lg font-black shadow-[0_10px_30px_rgba(0,0,0,0.3)]"
-              style={{
-                clipPath:
-                  "polygon(22% 0%, 78% 0%, 88% 15%, 100% 20%, 88% 100%, 12% 100%, 0% 20%, 12% 15%)",
-                boxShadow:
-                  marker.accent === "white"
-                    ? "0 10px 30px rgba(255,255,255,0.12)"
-                    : "0 10px 30px rgba(166,255,71,0.24)",
-              }}
+            <div
+              className={`relative mx-auto h-[4.75rem] w-[3.9rem] transition-transform ${
+                selectedMarkerId === marker.id ? "scale-110" : "hover:scale-105"
+              }`}
             >
-              <div className="absolute inset-x-[17%] top-[7%] h-[8%] rounded-full border border-[#a6ff47]/75" />
-              <div className="absolute inset-x-0 top-[16%] h-[5%] bg-[#a6ff47]" />
-              <div className="absolute inset-y-0 left-0 w-[8%] bg-[#a6ff47]" />
-              <div className="absolute inset-y-0 right-0 w-[8%] bg-[#a6ff47]" />
-              <span className="relative z-10 mt-2 text-white">
+              <Image
+                alt=""
+                className="pointer-events-none select-none object-contain"
+                height={114}
+                priority={false}
+                sizes="62px"
+                src={marker.jerseySrc ?? "/jersey.png"}
+                width={62}
+              />
+              <span className="absolute inset-0 z-10 flex items-center justify-center pt-1 text-[1.35rem] font-black text-white [text-shadow:0_2px_10px_rgba(0,0,0,0.8)]">
                 {marker.shirtNumber ?? marker.label.slice(0, 1)}
               </span>
             </div>
-            <div className="mt-2 rounded-full bg-black/45 px-2 py-1 text-[0.6rem] font-semibold uppercase tracking-[0.24em] text-white/75">
+            <div
+              className={`mt-4 rounded-full px-3.5 py-1.5 text-[0.78rem] font-semibold uppercase tracking-[0.24em] ${
+                selectedMarkerId === marker.id
+                  ? "bg-[#a6ff47] text-[#081108]"
+                  : "bg-black/45 text-white/75"
+              }`}
+            >
               {marker.label}
             </div>
-          </div>
+          </button>
         ))}
       </div>
 

@@ -4,10 +4,10 @@ import { HomeView } from "@/components/home-view";
 import { getPublicAppData } from "@/lib/supabase-data";
 
 export default async function LineupsPage() {
-  const { players, lineupVariants } = await getPublicAppData();
+  const { managerToken, players, lineupVariants } = await getPublicAppData();
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-5 py-8 sm:px-8 sm:py-10 xl:px-10">
+    <main className="mx-auto w-full max-w-[76rem] px-5 py-8 sm:px-8 sm:py-10 xl:px-10">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-[#a6ff47]">
@@ -28,7 +28,9 @@ export default async function LineupsPage() {
       <HomeView
         initialVariant={lineupVariants.find((variant) => variant.isActive)?.id}
         lineupVariants={lineupVariants}
+        managerToken={managerToken ?? undefined}
         players={players}
+        showPlayerStrip={false}
       />
     </main>
   );

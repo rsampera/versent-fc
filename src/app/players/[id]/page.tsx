@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { PitchBoard } from "@/components/pitch-board";
 import { PlayerCard } from "@/components/player-card";
+import { getPitchJerseySrc } from "@/lib/site-data";
 import { getPlayerById } from "@/lib/supabase-data";
 
 type PlayerDetailPageProps = {
@@ -53,6 +54,7 @@ export default async function PlayerDetailPage({ params }: PlayerDetailPageProps
               id: player.id,
               label: player.name.split(" ")[0],
               shirtNumber: player.shirtNumber,
+              jerseySrc: getPitchJerseySrc(player),
               x: player.preference.preferredX,
               y: player.preference.preferredY,
             },

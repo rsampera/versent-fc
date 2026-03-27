@@ -88,3 +88,13 @@ export function isPosition(value: string): value is Position {
 export function isCoverageBias(value: string): value is CoverageBias {
   return coverageBiases.includes(value as CoverageBias);
 }
+
+export function getPitchJerseySrc(player: Player) {
+  return player.preference.primaryPosition === "GK"
+    ? "/jersey-gk.png"
+    : "/jersey.png";
+}
+
+export function getPlayerProfileSrc(player: Player) {
+  return `/player-profiles/${player.name}.png`;
+}
