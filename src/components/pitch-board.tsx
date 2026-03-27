@@ -80,13 +80,16 @@ export function PitchBoard({
           onPitchClick(Math.round(x), Math.round(y));
         }}
       >
-        <div className="absolute inset-[3%] rounded-[1.4rem] border border-white/20" />
-        <div className="absolute inset-x-[16%] top-[6%] h-[16%] rounded-b-[2.5rem] border border-white/20" />
-        <div className="absolute inset-x-[16%] bottom-[6%] h-[16%] rounded-t-[2.5rem] border border-white/20" />
-        <div className="absolute inset-x-[30%] top-[6%] h-[7%] rounded-b-[2rem] border border-white/15" />
-        <div className="absolute inset-x-[30%] bottom-[6%] h-[7%] rounded-t-[2rem] border border-white/15" />
+        <div className="absolute inset-[3%] border border-white/20" />
+        <div className="absolute inset-x-[16%] top-[3%] h-[19%] border-x border-b border-white/20" />
+        <div className="absolute inset-x-[16%] bottom-[3%] h-[19%] border-x border-t border-white/20" />
+        <div className="absolute inset-x-[30%] top-[3%] h-[10%] border-x border-b border-white/15" />
+        <div className="absolute inset-x-[30%] bottom-[3%] h-[10%] border-x border-t border-white/15" />
         <div className="absolute inset-x-[3%] top-1/2 h-px -translate-y-1/2 bg-white/25" />
-        <div className="absolute left-1/2 top-1/2 h-[18%] w-[18%] -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/25" />
+        <div
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white/25"
+          style={{ width: "18%", aspectRatio: "1 / 1" }}
+        />
         <div className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/70" />
 
         {coverage ? (
