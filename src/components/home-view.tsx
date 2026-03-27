@@ -90,6 +90,9 @@ export function HomeView({
     : null;
   const starterIds = new Set(draftSlots.map((slot) => slot.playerId));
   const hasUnsavedManagerChanges = !slotsMatch(savedSlots, draftSlots);
+  const selectedPlayerIsStarter = selectedPlayerId
+    ? starterIds.has(selectedPlayerId)
+    : false;
 
   const activeMarkers: PitchMarker[] = draftSlots.reduce<PitchMarker[]>(
     (markers, slot) => {
@@ -201,6 +204,51 @@ export function HomeView({
     });
   }
 
+  function handleManagerStripSelect(playerId: string) {
+    if (!isManagerMode) {
+      setSelectedPlayerId(playerId);
+      return;
+    }
+
+    if (!selectedPlayerId || !selectedPlayerIsStarter || selectedPlayerId === playerId) {
+      setSelectedPlayerId(playerId);
+      return;
+    }
+
+    const targetIsStarter = starterIds.has(playerId);
+
+    setDraftSlots((current) => {
+      const sourceIndex = current.findIndex((slot) => slot.playerId === selectedPlayerId);
+
+      if (sourceIndex < 0) {
+        return current;
+      }
+
+      if (targetIsStarter) {
+        const targetIndex = current.findIndex((slot) => slot.playerId === playerId);
+
+        if (targetIndex < 0) {
+          return current;
+        }
+
+        const next = cloneSlots(current);
+        const sourceSlot = next[sourceIndex];
+        const targetSlot = next[targetIndex];
+
+        next[sourceIndex] = { ...sourceSlot, playerId: targetSlot.playerId };
+        next[targetIndex] = { ...targetSlot, playerId: sourceSlot.playerId };
+        return next;
+      }
+
+      return current.map((slot, index) =>
+        index === sourceIndex ? { ...slot, playerId } : slot,
+      );
+    });
+
+    setSelectedPlayerId(playerId);
+    setManagerMessage("Swap ready. Save layout to persist.");
+  }
+
   return (
     <>
       <div className="space-y-4">
@@ -287,8 +335,9 @@ export function HomeView({
               <PlayerStrip
                 activePlayerId={selectedPlayerId}
                 managerMode
-                onSelect={(playerId) => setSelectedPlayerId(playerId)}
+                onSelect={handleManagerStripSelect}
                 players={playerState}
+                swapSourcePlayerId={selectedPlayerIsStarter ? selectedPlayerId : null}
                 starterIds={starterIds}
               />
             ) : null}
