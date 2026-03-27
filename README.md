@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Versent FC
+
+FIFA-style squad companion app for a small work football tournament. The current build is scoped to:
+
+- one preloaded squad
+- public read-only squad and lineup pages
+- token-routed player edit pages
+- token-routed manager lineup board
+- three saved lineup variants backed by Supabase
+
+The visual direction follows the black, white, and neon green kit.
 
 ## Getting Started
 
-First, run the development server:
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Public routes:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `/`
+- `/lineups`
+- `/players/sampera`
 
-## Learn More
+Private player and manager token routes exist, but they are intentionally not listed here because those links are write-capable.
 
-To learn more about Next.js, take a look at the following resources:
+## Build Verification
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Use:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run lint
+npm run build
+```
 
-## Deploy on Vercel
+The build uses `--webpack` because Turbopack can fail inside this sandbox even when the app code is valid.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Data Model
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The schema lives in [supabase/schema.sql](/Users/rodsampera/Documents/development/versent-fc/supabase/schema.sql).
+
+The initial roster and lineup inserts live in [supabase/seed.sql](/Users/rodsampera/Documents/development/versent-fc/supabase/seed.sql).
+
+Shared domain types and helpers live in [src/lib/site-data.ts](/Users/rodsampera/Documents/development/versent-fc/src/lib/site-data.ts).
+
+The live Supabase REST data access layer lives in [src/lib/supabase-data.ts](/Users/rodsampera/Documents/development/versent-fc/src/lib/supabase-data.ts).
+
+## Environment
+
+Required:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `SUPABASE_SECRET_KEY`
+
+Optional for later browser-side Supabase usage:
+
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+
+## Next Steps
+
+- replace `card_image_url` nulls in the `players` table with your real card assets
+- decide how you want to distribute the private player edit links and the private manager link
+- optionally add a “set featured lineup” action so the manager can change the public default variant
