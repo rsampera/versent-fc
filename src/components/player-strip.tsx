@@ -4,6 +4,7 @@ import { Player } from "@/lib/site-data";
 
 type PlayerStripProps = {
   activePlayerId?: string | null;
+  managerMode?: boolean;
   players: Player[];
   starterIds: Set<string>;
   onSelect: (playerId: string) => void;
@@ -11,6 +12,7 @@ type PlayerStripProps = {
 
 export function PlayerStrip({
   activePlayerId,
+  managerMode = false,
   players,
   starterIds,
   onSelect,
@@ -23,7 +25,9 @@ export function PlayerStrip({
             Squad Strip
           </p>
           <p className="mt-1 text-xs text-white/58 sm:text-sm">
-            Select a player to reveal their card.
+            {managerMode
+              ? "Select a player from the full squad, then drag them on the field."
+              : "Select a player to reveal their card."}
           </p>
         </div>
       </div>

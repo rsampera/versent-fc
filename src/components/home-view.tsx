@@ -206,13 +206,23 @@ export function HomeView({
       <div className="space-y-4">
         <div className="rounded-[1.65rem] bg-[linear-gradient(180deg,rgba(8,14,11,0.95),rgba(4,8,6,0.94))] px-4 py-3 shadow-[0_24px_80px_rgba(0,0,0,0.32)]">
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="rounded-[1rem] bg-[#09110c] px-3.5 py-2.5">
-              <p className="text-[0.65rem] font-semibold uppercase tracking-[0.4em] text-[#a6ff47]">
-                Club
-              </p>
-              <h1 className="mt-1 text-xl font-black uppercase tracking-[0.08em] text-white sm:text-2xl">
-                VERSENT FC
-              </h1>
+            <div className="flex items-center gap-3 rounded-[1rem] bg-[#09110c] px-3.5 py-2.5">
+              <img
+                alt="Versent mark"
+                className="h-9 w-auto sm:h-10"
+                decoding="async"
+                height={40}
+                src="/v-mark-green.png"
+                width={43}
+              />
+              <div>
+                <p className="text-[0.65rem] font-semibold uppercase tracking-[0.4em] text-[#a6ff47]">
+                  Club
+                </p>
+                <h1 className="mt-1 text-xl font-black uppercase tracking-[0.08em] text-white sm:text-2xl">
+                  VERSENT FC
+                </h1>
+              </div>
             </div>
 
             <div className="flex flex-wrap items-center justify-end gap-2">
@@ -272,6 +282,16 @@ export function HomeView({
               }}
               selectedMarkerId={selectedPlayerId ?? undefined}
             />
+
+            {showPlayerStrip && isManagerMode ? (
+              <PlayerStrip
+                activePlayerId={selectedPlayerId}
+                managerMode
+                onSelect={(playerId) => setSelectedPlayerId(playerId)}
+                players={playerState}
+                starterIds={starterIds}
+              />
+            ) : null}
           </section>
 
           <aside className="min-w-0 rounded-[1.75rem] bg-[#09110c]/85 p-3.5 shadow-[0_24px_80px_rgba(0,0,0,0.32)] xl:sticky xl:top-6 xl:h-fit">
@@ -352,16 +372,6 @@ export function HomeView({
           </aside>
         </div>
 
-        {showPlayerStrip ? (
-          <PlayerStrip
-            activePlayerId={selectedPlayerId}
-            onSelect={(playerId) =>
-              setSelectedPlayerId((current) => (current === playerId ? null : playerId))
-            }
-            players={playerState}
-            starterIds={starterIds}
-          />
-        ) : null}
       </div>
 
       {selectedPlayer && isPlayerModalOpen ? (

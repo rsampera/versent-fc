@@ -10,7 +10,6 @@ export default async function Home() {
         lineupVariants={lineupVariants}
         managerToken={managerToken ?? undefined}
         players={players}
-        showPlayerStrip={false}
       />
     </main>
   );

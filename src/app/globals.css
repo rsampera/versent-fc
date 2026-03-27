@@ -26,6 +26,7 @@ html {
     radial-gradient(circle at top, rgba(166, 255, 71, 0.13), transparent 22%),
     linear-gradient(180deg, #071009 0%, #040806 38%, #020403 100%);
   overflow-x: hidden;
+  overflow-y: auto;
 }
 
 body {
@@ -37,6 +38,7 @@ body {
   font-family: var(--font-sans);
   min-height: 100vh;
   overflow-x: hidden;
+  overflow-y: auto;
 }
 
 a,
