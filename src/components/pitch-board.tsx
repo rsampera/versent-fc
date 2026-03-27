@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ReactNode } from "react";
+import { ReactNode, useRef, useState } from "react";
 
 export type PitchMarker = {
   id: string;
@@ -30,6 +30,7 @@ type PitchBoardProps = {
   interactive?: boolean;
   onPitchClick?: (x: number, y: number) => void;
   onMarkerClick?: (markerId: string) => void;
+  onMarkerMove?: (markerId: string, x: number, y: number) => void;
   footer?: ReactNode;
 };
 
@@ -46,8 +47,28 @@ export function PitchBoard({
   interactive = false,
   onPitchClick,
   onMarkerClick,
+  onMarkerMove,
   footer,
 }: PitchBoardProps) {
+  const pitchRef = useRef<HTMLDivElement | null>(null);
+  const [draggingMarkerId, setDraggingMarkerId] = useState<string | null>(null);
+
+  function getCoordinates(clientX: number, clientY: number) {
+    const bounds = pitchRef.current?.getBoundingClientRect();
+
+    if (!bounds) {
+      return null;
+    }
+
+    const x = clamp(((clientX - bounds.left) / bounds.width) * 100, 0, 100);
+    const y = clamp(((clientY - bounds.top) / bounds.height) * 100, 0, 100);
+
+    return {
+      x: Math.round(x),
+      y: Math.round(y),
+    };
+  }
+
   return (
     <section className="rounded-[1.75rem] bg-[#09110c]/85 p-3 text-white shadow-[0_24px_80px_rgba(0,0,0,0.3)] sm:p-4">
       {(title || subtitle) && (
@@ -69,16 +90,35 @@ export function PitchBoard({
         className={`relative aspect-[16/19] max-h-[48rem] overflow-hidden rounded-[1.35rem] border border-[#baff6c]/20 bg-[radial-gradient(circle_at_top,_rgba(166,255,71,0.22),_rgba(15,62,24,0.94)_35%,_rgba(4,20,10,0.98)_100%)] ${
           interactive ? "cursor-crosshair" : ""
         }`}
+        onPointerMove={(event) => {
+          if (!interactive || !draggingMarkerId || !onMarkerMove) {
+            return;
+          }
+
+          const point = getCoordinates(event.clientX, event.clientY);
+
+          if (!point) {
+            return;
+          }
+
+          onMarkerMove(draggingMarkerId, point.x, point.y);
+        }}
+        onPointerUp={() => setDraggingMarkerId(null)}
+        onPointerLeave={() => setDraggingMarkerId(null)}
         onClick={(event) => {
           if (!interactive || !onPitchClick) {
             return;
           }
 
-          const bounds = event.currentTarget.getBoundingClientRect();
-          const x = clamp(((event.clientX - bounds.left) / bounds.width) * 100, 0, 100);
-          const y = clamp(((event.clientY - bounds.top) / bounds.height) * 100, 0, 100);
-          onPitchClick(Math.round(x), Math.round(y));
+          const point = getCoordinates(event.clientX, event.clientY);
+
+          if (!point) {
+            return;
+          }
+
+          onPitchClick(point.x, point.y);
         }}
+        ref={pitchRef}
       >
         <div className="absolute inset-[3%] border border-white/20" />
         <div className="absolute inset-x-[16%] top-[3%] h-[19%] border-x border-b border-white/20" />
@@ -117,6 +157,15 @@ export function PitchBoard({
             className="absolute -translate-x-1/2 -translate-y-[42%] text-center"
             onClick={(event) => {
               event.stopPropagation();
+              onMarkerClick?.(marker.id);
+            }}
+            onPointerDown={(event) => {
+              if (!interactive || !onMarkerMove) {
+                return;
+              }
+
+              event.stopPropagation();
+              setDraggingMarkerId(marker.id);
               onMarkerClick?.(marker.id);
             }}
             type="button"

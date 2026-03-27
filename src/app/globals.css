@@ -21,18 +21,22 @@
 }
 
 html {
+  max-width: 100%;
   background:
     radial-gradient(circle at top, rgba(166, 255, 71, 0.13), transparent 22%),
     linear-gradient(180deg, #071009 0%, #040806 38%, #020403 100%);
-  overflow-x: clip;
+  overflow-x: hidden;
 }
 
 body {
+  margin: 0;
+  width: 100%;
+  max-width: 100%;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
   min-height: 100vh;
-  overflow-x: clip;
+  overflow-x: hidden;
 }
 
 a,
